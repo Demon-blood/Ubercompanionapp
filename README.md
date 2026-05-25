@@ -64,3 +64,14 @@ android.suppressUnsupportedCompileSdk=35
 ```
 
 This fixes the AndroidX dependency build error in GitHub Actions.
+
+
+## JVM target fix included
+
+This ZIP sets Java and Kotlin to JVM 17 in `app/build.gradle.kts`.
+
+This fixes:
+
+```text
+Inconsistent JVM-target compatibility detected for tasks 'compileDebugJavaWithJavac' (1.8) and 'compileDebugKotlin' (17)
+```
