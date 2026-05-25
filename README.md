@@ -22,6 +22,8 @@ Android Kotlin/Compose delivery companion app with GitHub Actions APK build work
   - blocked areas
   - preferred areas
 - Trip logging
+- E-scooter electricity cost and battery impact estimates
+- AI-style waiting zone rankings from your logged delivery history
 - Profit, distance, order, and expense summaries
 - Local SharedPreferences storage
 - Draggable overlay panel
@@ -75,3 +77,36 @@ This fixes:
 ```text
 Inconsistent JVM-target compatibility detected for tasks 'compileDebugJavaWithJavac' (1.8) and 'compileDebugKotlin' (17)
 ```
+
+
+## Notes on automatic Uber overlay data
+
+This app does not scan, scrape, OCR, or control the Uber Eats offer popup. Offer data must be entered manually or imported from a compliant source. The decision engine can then use that data automatically once it is inside the companion app.
+
+
+## Weather & event signals
+
+This version adds:
+- Internet permission
+- Open-Meteo weather check for Turnhout
+- Weather-based e-scooter demand/risk score
+- Event lookup scaffold for Turnhout/Belgium using UiTdatabank-style event data
+- Weather/event modifiers inside AI waiting-zone scoring
+
+## OCR / Uber popup reading
+
+This app does not perform live OCR, screen scraping, AccessibilityService reading, or automated interaction with the Uber Eats offer popup. Offer data must be entered manually or imported from a compliant source.
+
+
+## Offer location capture
+
+This version adds:
+- Fine/coarse location permissions
+- Google fused location provider dependency
+- Current GPS snapshot at offer time
+- Pickup destination text field
+- Delivery destination text field
+- Offer timestamp/source metadata
+- Trip history display for pickup, delivery, and offer GPS
+
+The GPS capture is user-permission based and does not interact with Uber's UI.
