@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "DeliveryCompanionAIO"
+rootProject.name = "UberEatsCompanion"
 include(":app")

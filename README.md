@@ -1,112 +1,108 @@
-# Delivery Companion AIO
+# Uber Eats Companion
 
-Android Kotlin/Compose delivery companion app with GitHub Actions APK build workflow.
+Android companion app for e-scooter Uber Eats delivery decisions.
 
-## Included
+## What this version implements
 
-- Full Android project source
-- GitHub Actions build workflow: `.github/workflows/build-apk.yml`
-- Native Android dashboard
-- Floating overlay permission flow
-- Foreground overlay service
-- Manual offer decision helper
-- ACCEPT / REJECT recommendation based on filters
-- Rules:
-  - minimum pay
-  - minimum €/km
-  - minimum €/hour
-  - maximum distance
-  - maximum trip time
-  - maximum pickup wait
-  - stacked-order minimum payout
-  - blocked areas
-  - preferred areas
-- Trip logging
-- E-scooter electricity cost and battery impact estimates
-- AI-style waiting zone rankings from your logged delivery history
-- Profit, distance, order, and expense summaries
-- Local SharedPreferences storage
-- Draggable overlay panel
+- Jetpack Compose dashboard
+- Manual offer evaluator
+- ACCEPT / MAYBE / DECLINE decision engine
+- €/km and estimated €/hour calculations
+- E-scooter battery estimator using Wh/km and battery capacity
+- Rain and wind-aware payout rules
+- Room database for offers, deliveries, waiting zones, and store-specific rules
+- CSV delivery-history import from Android file picker
+- Foreground GPS service using Fused Location Provider
+- Live weather fetch using Open-Meteo based on current GPS
+- Accessibility Service that reads visible Uber text, parses offers, evaluates them, and saves them locally
+- OCR fallback using MediaProjection + ML Kit Text Recognition with throttling and crash guards
+- Recent saved offers shown in the app
+- Initial Turnhout waiting-zone recommendations until enough imported history exists
 
-## Not included
+## Safety boundary
 
-This project does not auto-tap, auto-accept, auto-reject, scrape, inject input into, or control the Uber Eats driver app.
+The app observes visible offer data, calculates, logs, and recommends. It does not tap, accept, decline, reject, or automate the Uber Eats / Uber Driver UI.
 
-## Phone-only GitHub build
+## Important reality check
 
-1. Create a GitHub repository.
-2. Upload everything in this ZIP to the repository root.
-3. Open the repository on GitHub.
-4. Go to **Actions**.
-5. Select **Build Android APK**.
-6. Tap **Run workflow**.
-7. Open the finished workflow run.
-8. Download the artifact named `DeliveryCompanionAIO-debug-apk`.
+The manual evaluator, GPS, weather, CSV import, database, and decision engine are fully implemented in code.
 
-## Local build
+Live Uber offer extraction depends on what Android and the installed Uber app expose:
+
+- Accessibility works only if Uber's offer text is exposed in the accessibility node tree.
+- OCR works only after the user grants Android screen-capture permission.
+- OCR accuracy depends on screen layout, language, font size, and offer-card visibility.
+
+## Build
+
+Open the folder in Android Studio and run:
 
 ```bash
+./gradlew assembleDebug
+```
+
+If there is no Gradle wrapper in the checkout yet, use Android Studio's Gradle sync or run with a local Gradle install:
+
+```bash
+gradle wrapper
 gradle assembleDebug
 ```
 
-APK output:
+## First run
 
-```text
-app/build/outputs/apk/debug/app-debug.apk
-```
+1. Install the debug APK.
+2. Grant location and notification permissions.
+3. Tap **Accessibility** and enable **Uber Eats Offer Reader**.
+4. Tap **Start GPS**.
+5. For fallback screen reading, tap **Start OCR** and approve Android's screen-capture prompt.
+6. Open Uber Driver / Uber Eats Driver. When an offer appears, the app will try Accessibility first and OCR fallback if enabled.
 
-## Build fix included
+## Notes
 
-This ZIP includes `gradle.properties` with:
+OCR is deliberately throttled to reduce crashes, battery drain, and memory pressure. It reads the screen for decision support only and does not interact with Uber.
 
-```properties
-android.useAndroidX=true
-android.enableJetifier=true
-android.suppressUnsupportedCompileSdk=35
-```
+## Maxymo-inspired independent feature implementation
 
-This fixes the AndroidX dependency build error in GitHub Actions.
+This version includes a high-level feature pass based on the uploaded Maxymo APK resource analysis. No Maxymo source code was copied.
 
+Added capabilities:
 
-## JVM target fix included
+- Accessibility-based offer reading.
+- Notification-listener offer reading.
+- OCR fallback using MediaProjection + ML Kit.
+- Floating recommendation overlay.
+- Android Text-to-Speech voice alerts.
+- Store-specific filters and expanded app-wide rules.
+- Pickup distance, total time, min €/hour, min €/km, min payout, stacked-order, multi-stop, and order-and-pay filtering.
+- Shift-session database table.
+- Google Maps/Waze navigation helper.
+- Maxymo-style analytics foundation: recent offers, imported delivery history, best-time stats engine.
 
-This ZIP sets Java and Kotlin to JVM 17 in `app/build.gradle.kts`.
+Safety/product boundary:
 
-This fixes:
-
-```text
-Inconsistent JVM-target compatibility detected for tasks 'compileDebugJavaWithJavac' (1.8) and 'compileDebugKotlin' (17)
-```
-
-
-## Notes on automatic Uber overlay data
-
-This app does not scan, scrape, OCR, or control the Uber Eats offer popup. Offer data must be entered manually or imported from a compliant source. The decision engine can then use that data automatically once it is inside the companion app.
-
-
-## Weather & event signals
-
-This version adds:
-- Internet permission
-- Open-Meteo weather check for Turnhout
-- Weather-based e-scooter demand/risk score
-- Event lookup scaffold for Turnhout/Belgium using UiTdatabank-style event data
-- Weather/event modifiers inside AI waiting-zone scoring
-
-## OCR / Uber popup reading
-
-This app does not perform live OCR, screen scraping, AccessibilityService reading, or automated interaction with the Uber Eats offer popup. Offer data must be entered manually or imported from a compliant source.
+- Auto-accept/auto-decline settings exist in the data model for compatibility with rule storage, but the app does not execute automated taps in Uber Eats.
+- The app recommends only. It does not control Uber Eats.
 
 
-## Offer location capture
+## Tasker automation bridge
 
-This version adds:
-- Fine/coarse location permissions
-- Google fused location provider dependency
-- Current GPS snapshot at offer time
-- Pickup destination text field
-- Delivery destination text field
-- Offer timestamp/source metadata
-- Trip history display for pickup, delivery, and offer GPS
+This build includes a Tasker bridge. The app sends Android broadcasts when an offer is evaluated and includes offer variables such as recommendation, price, €/km, €/hour, pickup, drop-off, battery-after-trip, and rejection reasons.
 
-The GPS capture is user-permission based and does not interact with Uber's UI.
+See `TASKER_INTEGRATION.md` for exact Tasker profile actions, extras, and command examples.
+
+Implemented Tasker-safe commands:
+
+- start shift
+- stop shift
+- set mode: normal, rain, heavy_rain, strict
+- speak last detected offer
+- open navigation to a supplied query or last pickup
+- configure named Tasker tasks for ACCEPT / MAYBE / DECLINE recommendations
+
+The app still does not tap Accept or Decline inside Uber Eats.
+
+## Confirmation workflow update
+
+This package adds a confirmation-based Tasker workflow. Detected offers produce Tasker broadcasts and launch a full-screen confirmation screen with `I ACCEPTED`, `I DECLINED`, and `MAYBE / SKIPPED`. Confirmed choices are stored in Room and shown in the app. See `CONFIRMATION_TASKER_WORKFLOW.md`.
+
+Ride-safe speed mode is not included in this update.

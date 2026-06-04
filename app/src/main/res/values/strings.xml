@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Uber Eats Companion</string>
+    <string name="accessibility_service_label">Uber Eats Offer Reader</string>
+    <string name="accessibility_service_description">Reads visible offer text to calculate delivery recommendations. It does not tap or control Uber Eats.</string>
+</resources>
