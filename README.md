@@ -106,3 +106,14 @@ The app still does not tap Accept or Decline inside Uber Eats.
 This package adds a confirmation-based Tasker workflow. Detected offers produce Tasker broadcasts and launch a full-screen confirmation screen with `I ACCEPTED`, `I DECLINED`, and `MAYBE / SKIPPED`. Confirmed choices are stored in Room and shown in the app. See `CONFIRMATION_TASKER_WORKFLOW.md`.
 
 Ride-safe speed mode is not included in this update.
+
+## GitHub Actions build
+
+This package includes a ready-to-run GitHub Actions workflow:
+
+```text
+.github/workflows/android-build.yml
+```
+
+Push the project to GitHub, open the **Actions** tab, run **Android CI**, then download the `uber-eats-companion-debug-apk` artifact. Full instructions are in `GITHUB_ACTIONS_BUILD.md`.
+
